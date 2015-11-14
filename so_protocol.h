@@ -16,17 +16,13 @@
 // MSG type message
 typedef struct _so_msg {
 	char *rid;
-	int rid_len;
 	char *username;
-	int username_len;
 	char *text;
-	int text_len;
 } so_msg;
 
 // other message
 typedef struct _so_other {
 	char *text;
-	int text_len;
 } so_other;
 
 //	message
@@ -39,7 +35,6 @@ typedef union _so_message {
 typedef struct _so_data {
 	char type[3];
 	so_message message;
-	int message_len;
 } so_data;
 
 // full packet data
@@ -68,8 +63,8 @@ typedef struct _so_network {
 #define T_LEN			3
 // message length
 #define MESSAGE_LEN		500
-// total length of members preceding message
-#define CONSTANT_LEN	(11+T_LEN)	// 4-cid, 4-seq_num, 2-len, 1-'/'
+// total length of members preceding data
+#define CONSTANT_LEN	(2*sizeof(uint32_t) + sizeof(uint16_t))
 //-----------------------------------------------------------------------------
 
 // packet handling functions
