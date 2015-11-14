@@ -17,13 +17,16 @@ so_network so_pack(so_packet *p)
 	short is_message = !strncmp(p->data.type, T_MESSAGE, T_LEN);
 	if(is_message)
 	{
-		rid_len = strlen(p->data.message.msg.rid);
-		username_len = strlen(p->data.message.msg.username);
-		text_len = strlen(p->data.message.msg.text);
+		rid_len = strlen(p->data.message.rid);
+		username_len = strlen(p->data.message.username);
+		text_len = strlen(p->data.message.text);
 		message_len = rid_len + username_len + text_len + 2;
 	}
 	else
-		message_len = strlen(p->data.message.other.text);
+	{
+		text_len = strlen(p->data.message.text);
+		message_len = text_len;
+	}
 	
 	if(message_len > MESSAGE_LEN)
 	{
@@ -55,23 +58,18 @@ so_network so_pack(so_packet *p)
 	
 	if(is_message)
 	{
-		strncpy((char*)(n.packet+n.len), p->data.message.msg.rid, rid_len);					// RID
+		strncpy((char*)(n.packet+n.len), p->data.message.rid, rid_len);					// RID
 		n.len += rid_len;
 		memcpy(n.packet+n.len++, &slash, sizeof(slash));
 
-		strncpy((char*)(n.packet+n.len), p->data.message.msg.username, username_len);		// USERNAME
+		strncpy((char*)(n.packet+n.len), p->data.message.username, username_len);		// USERNAME
 		n.len += username_len;
 		memcpy(n.packet+n.len++, &colon, sizeof(colon));
+	}
+
+	strncpy((char*)(n.packet+n.len), p->data.message.text, text_len);					// TEXT
+	n.len += text_len;
 		
-		strncpy((char*)(n.packet+n.len), p->data.message.msg.text, text_len);				// TEXT
-		n.len += text_len;
-	}
-	else
-	{
-		strncpy((char*)(n.packet+n.len), p->data.message.other.text, text_len);			// TEXT
-		n.len += text_len;
-	}
-	
 	return n;
 }
 //-----------------------------------------------------------------------------
@@ -99,39 +97,27 @@ so_packet so_unpack(so_network *n)
 	strncpy(p.data.type, (char*)(n->packet+current), T_LEN);				// TYPE
 	current += T_LEN+1;		// slash after type
 
-	int message_len = 0;
 	if(!strncmp(p.data.type, T_MESSAGE, T_LEN))
 	{
 		int rid_len = 0;
 		while(*((char*)n->packet + current + rid_len) != '/') rid_len++;
-		p.data.message.msg.rid = (char*)malloc(rid_len+1);
-		strncpy(p.data.message.msg.rid, (char*)(n->packet+current), rid_len);				// RID
-		p.data.message.msg.rid[rid_len] = '\0';
+		p.data.message.rid = (char*)malloc(rid_len+1);
+		strncpy(p.data.message.rid, (char*)(n->packet+current), rid_len);				// RID
+		p.data.message.rid[rid_len] = '\0';
 		current += rid_len+1;	// slash after rid
 
 		int username_len = 0;
 		while(*((char*)n->packet + current + username_len) != ':') username_len++;
-		p.data.message.msg.username = (char*)malloc(username_len+1);
-		strncpy(p.data.message.msg.username, (char*)(n->packet+current), username_len);		// USERNAME
-		p.data.message.msg.username[username_len] = '\0';
+		p.data.message.username = (char*)malloc(username_len+1);
+		strncpy(p.data.message.username, (char*)(n->packet+current), username_len);		// USERNAME
+		p.data.message.username[username_len] = '\0';
 		current += username_len+1;	// colon after username
-
-		int text_len = p.len - current + CONSTANT_LEN;
-		p.data.message.msg.text = (char*)malloc(text_len+1);
-		strncpy(p.data.message.msg.text, (char*)(n->packet+current), text_len);				// TEXT
-		p.data.message.msg.text[text_len] = '\0';
-		current += text_len;
-
-		message_len = rid_len + username_len + text_len + 2;
 	}
-	else
-	{
-		int text_len = p.len - current + CONSTANT_LEN;
-		p.data.message.other.text = (char*)malloc(text_len+1);
-		strncpy(p.data.message.other.text, (char*)(n->packet+current), text_len);			// TEXT
-		p.data.message.other.text[text_len] = '\0';
-		message_len = text_len;
-	}
+
+	int text_len = p.len - current + CONSTANT_LEN;
+	p.data.message.text = (char*)malloc(text_len+1);
+	strncpy(p.data.message.text, (char*)(n->packet+current), text_len);					// TEXT
+	p.data.message.text[text_len] = '\0';
 
 	return p;
 }
@@ -142,18 +128,13 @@ void so_delete_packet(so_packet *p)
 {
 	if(!strncmp(p->data.type, T_MESSAGE, T_LEN))
 	{
-		free(p->data.message.msg.rid);
-		free(p->data.message.msg.username);
-		free(p->data.message.msg.text);
-		p->data.message.msg.rid = NULL;
-		p->data.message.msg.username = NULL;
-		p->data.message.msg.text = NULL;
+		free(p->data.message.rid);
+		free(p->data.message.username);
+		p->data.message.rid = NULL;
+		p->data.message.username = NULL;
 	}
-	else
-	{
-		free(p->data.message.other.text);
-		p->data.message.other.text = NULL;
-	}
+	free(p->data.message.text);
+	p->data.message.text = NULL;
 }
 //-----------------------------------------------------------------------------
 

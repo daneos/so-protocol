@@ -13,22 +13,11 @@
 //-----------------------------------------------------------------------------
 
 // data structures
-// MSG type message
-typedef struct _so_msg {
+// message
+typedef struct _so_message {
 	char *rid;
 	char *username;
 	char *text;
-} so_msg;
-
-// other message
-typedef struct _so_other {
-	char *text;
-} so_other;
-
-//	message
-typedef union _so_message {
-	so_msg msg;
-	so_other other;
 } so_message;
 
 // data field
