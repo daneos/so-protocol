@@ -33,3 +33,6 @@
 
 # test code
 test.c
+
+# sublime project
+sublime-project/*
