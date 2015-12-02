@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
 	else
 		port = argv[1];
 
-	int sock = create_listener(NULL, port);
-	INFO("Socket created successfully.");
+	int sock = create_socket(NULL, port, DO_BIND);
+	INFO("Socket listening on port %s", port);
 
 	int recvlen;
 	for(;;)
@@ -34,12 +34,14 @@ int main(int argc, char *argv[])
 			STDERROR();
 			continue;
 		}
+		INFO("Got packet of %d bytes.", recvlen);
 		n.packet = malloc(recvlen);
 		strncpy(n.packet, buffer, recvlen);
 		server_handle_packet(&n);
 		so_delete_network(&n);
 	}
 
+	close(sock);
 	free(processes);
 	free(buffer);
 	return 0;

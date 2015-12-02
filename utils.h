@@ -15,6 +15,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdint.h>
+#include <time.h>
 
 #if defined(_WIN32)
 #	include <winsock2.h>
@@ -43,17 +44,36 @@ typedef struct sockaddr_in6		us_sockaddr6;
 #if defined(__GNUC__) && (__STDC_VERSION__ >= 199901L)
 	// i'm assuming that GNU C is running on linux terminal that supports colors
 	// it's probably wrong, but i'm too lazy to actually check it
-#	define ERROR(msg)		fprintf(stderr, "\x1b[1;31m[%s/%s():%d]: %s\x1b[0m\n", __FILE__, __func__, __LINE__, msg)
-#	define INFO(msg)		fprintf(stderr, "\x1b[1;94m[%s/%s():%d]: %s\x1b[0m\n", __FILE__, __func__, __LINE__, msg)
+#	define ERROR(msg, ...)		({ \
+									fprintf(stderr, "\x1b[1;31m<%d> [%s/%s():%d]: ", (int)time(NULL), __FILE__, __func__, __LINE__); \
+									fprintf(stderr, msg, ## __VA_ARGS__); \
+									fprintf(stderr, "\x1b[0m\n"); \
+								})
+#	define INFO(msg, ...)		({ \
+									printf("\x1b[1;94m<%d> [%s/%s():%d]: ", (int)time(NULL), __FILE__, __func__, __LINE__); \
+									printf(msg, ## __VA_ARGS__); \
+									printf("\x1b[0m\n"); \
+								})
 #else
-#	define ERROR(msg)		fprintf(stderr, "%s\n", msg)
-#	define INFO(msg)		fprintf(stderr, "%s\n", msg)
+#	define ERROR(msg, ...)		({ \
+									fprintf(stderr, "<%d> ", (int)time(NULL)); \
+									fprintf(stderr, msg, ## __VA_ARGS__); \
+									fprintf(stderr, "\n"); \
+								})
+#	define INFO(msg, ...)		({ \
+									printf("<%d> ", (int)time(NULL)); \
+									printf(msg, ## __VA_ARGS__); \
+									printf("\n"); \
+								})
 #endif
 #define STDERROR()			ERROR(strerror(errno))
 //-----------------------------------------------------------------------------
 
 // constants
 #define FAIL				-1
+// bind or not to bind, that is the question...
+#define NO_BIND				0
+#define	DO_BIND				1
 //-----------------------------------------------------------------------------
 
 #endif /* __UTILS_H__ */

@@ -207,7 +207,7 @@ void server_handle_packet(so_network *n)
 }
 //-----------------------------------------------------------------------------
 
-int create_listener(const char *name, const char *port)
+int create_socket(const char *name, const char *port, short if_bind)
 /* Create and bind listener socket */
 {
 	us_addrinfo hints, *info;
@@ -235,12 +235,13 @@ int create_listener(const char *name, const char *port)
 			continue;
 		}
 
-		if(bind(sock, p->ai_addr, p->ai_addrlen) == -1)
-		{
-			close(sock);
-			STDERROR();
-			continue;
-		}
+		if(if_bind)
+			if(bind(sock, p->ai_addr, p->ai_addrlen) == -1)
+			{
+				close(sock);
+				STDERROR();
+				continue;
+			}
 		break;
 	}
 

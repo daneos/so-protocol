@@ -116,7 +116,7 @@ void so_delete_network(so_network *n);
 void so_debug_print(so_packet *p);
 int switchtype(so_packet *p);
 void server_handle_packet(so_network *n);
-int create_listener(const char *name, const char* port);
+int create_socket(const char *name, const char* port, short if_bind);
 //-----------------------------------------------------------------------------
 
 #endif /* __SO_PROTOCOL_H__ */
