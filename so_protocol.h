@@ -32,13 +32,47 @@ typedef struct _so_packet {
 	uint32_t seq_num;
 	uint16_t len;
 	so_data data;
+	us_sockaddr_s address;
+	int addr_len;
 } so_packet;
 
 // packet, in a ready to send form
 typedef struct _so_network {
 	void *packet;
 	size_t len;
+	us_sockaddr_s address;
+	int addr_len;
 } so_network;
+
+// // output packet queue
+// typedef struct _qe {
+// 	so_packet *p;
+// 	struct _qe *next;
+// } qe;
+
+// // random connection data
+// typedef struct _rcd {
+// 	uint32_t current_seq;
+// 	qe *head;
+// 	qe *current;
+// 	qe *tail;
+// } rcd;
+
+// // low-level connection structure
+// typedef struct _connection {
+// 	int sock;
+// 	us_sockaddr address;
+// 	uint32_t cid;
+// 	pid_t process;
+// 	rcd data;
+// 	cflags flags;
+// } connection;
+
+// child process info
+typedef struct _child {
+	pid_t pid;
+	uint32_t cid;	
+} child;
 //-----------------------------------------------------------------------------
 
 // message types
@@ -49,6 +83,7 @@ typedef struct _so_network {
 #define T_RETRY			"RET"
 #define T_RESET			"RST"
 #define T_END			"END"
+
 // message types for switch statement
 #define ST_INIT			0
 #define ST_MESSAGE		1
@@ -57,6 +92,7 @@ typedef struct _so_network {
 #define ST_RETRY		4
 #define ST_RESET		5
 #define ST_END			6
+
 // type length
 #define T_LEN			3
 // message length
@@ -67,6 +103,9 @@ typedef struct _so_network {
 // useful macros
 #define IS_TYPE(p,t)	(!strncmp((p)->data.type, t, T_LEN))
 #define SET_TYPE(p,t)	(strncpy((p)->data.type, t, T_LEN))
+
+// child process management
+#define ALLOCATION_STEP	100
 //-----------------------------------------------------------------------------
 
 // packet handling functions
@@ -76,6 +115,8 @@ void so_delete_packet(so_packet *p);
 void so_delete_network(so_network *n);
 void so_debug_print(so_packet *p);
 int switchtype(so_packet *p);
+void server_handle_packet(so_network *n);
+int create_listener(const char *name, const char* port);
 //-----------------------------------------------------------------------------
 
 #endif /* __SO_PROTOCOL_H__ */

@@ -41,9 +41,13 @@ typedef struct sockaddr_in6		us_sockaddr6;
 
 // macros
 #if defined(__GNUC__) && (__STDC_VERSION__ >= 199901L)
+	// i'm assuming that GNU C is running on linux terminal that supports colors
+	// it's probably wrong, but i'm too lazy to actually check it
 #	define ERROR(msg)		fprintf(stderr, "\x1b[1;31m[%s/%s():%d]: %s\x1b[0m\n", __FILE__, __func__, __LINE__, msg)
+#	define INFO(msg)		fprintf(stderr, "\x1b[1;94m[%s/%s():%d]: %s\x1b[0m\n", __FILE__, __func__, __LINE__, msg)
 #else
 #	define ERROR(msg)		fprintf(stderr, "%s\n", msg)
+#	define INFO(msg)		fprintf(stderr, "%s\n", msg)
 #endif
 #define STDERROR()			ERROR(strerror(errno))
 //-----------------------------------------------------------------------------

@@ -36,3 +36,7 @@ test.c
 
 # sublime project
 sublime-project/*
+
+# executables
+server
+client

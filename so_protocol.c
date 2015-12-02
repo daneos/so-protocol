@@ -171,3 +171,86 @@ int switchtype(so_packet *p)
 	return FAIL;
 }
 //-----------------------------------------------------------------------------
+
+void server_handle_packet(so_network *n)
+{
+	so_packet p = so_unpack(n);
+
+	switch(switchtype(&p))
+	{
+		case ST_INIT:
+			//start_connection(&p);
+			break;
+
+		case ST_MESSAGE:
+			break;
+
+		case ST_DATA:
+			break;
+
+		case ST_ACK:
+			break;
+
+		case ST_RETRY:
+			break;
+
+		case ST_RESET:
+			break;
+
+		case ST_END:
+			break;
+
+		default:
+			ERROR("Received packet of an unknown or unsupported type. Ignoring.");
+			break;
+	}
+}
+//-----------------------------------------------------------------------------
+
+int create_listener(const char *name, const char *port)
+/* Create and bind listener socket */
+{
+	us_addrinfo hints, *info;
+	
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;		// IP version agnostic
+	hints.ai_socktype = SOCK_DGRAM;		// UDP socket
+	hints.ai_flags = AI_PASSIVE;		// fill in local IP address
+
+	int r;
+	if((r = getaddrinfo(name, port, &hints, &info)) != 0)
+	{
+		ERROR(gai_strerror(r));
+		return FAIL;
+	}
+
+	// loop through all the results and bind to the first we can
+	us_addrinfo *p;
+	int sock;
+	for(p = info; p != NULL; p = p->ai_next)
+	{
+		if((sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+		{
+			STDERROR();
+			continue;
+		}
+
+		if(bind(sock, p->ai_addr, p->ai_addrlen) == -1)
+		{
+			close(sock);
+			STDERROR();
+			continue;
+		}
+		break;
+	}
+
+	if(p == NULL)
+	{
+		ERROR("failed to bind socket.");
+		return FAIL;
+	}
+
+	freeaddrinfo(info);
+	return sock;
+}
+//-----------------------------------------------------------------------------
