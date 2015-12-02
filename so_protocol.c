@@ -39,6 +39,7 @@ so_network so_pack(so_packet *p)
 	
 	n.packet = malloc(CONSTANT_LEN + p->len);
 	n.len = 0;
+	n.address = p->address;
 
 	uint32_t cid = htonl(p->cid);
 	uint32_t seq_num = htonl(p->seq_num);
@@ -82,6 +83,8 @@ so_packet so_unpack(so_network *n)
 	uint32_t seq_num;
 	uint16_t len;
 	int current = 0;
+
+	p.address = n->address;
 	
 	memcpy(&cid, n->packet+current, sizeof(cid));							// CID
 	current += sizeof(cid);
@@ -101,21 +104,21 @@ so_packet so_unpack(so_network *n)
 	{
 		int rid_len = 0;
 		while(*((char*)n->packet + current + rid_len) != '/') rid_len++;
-		p.data.message.rid = (char*)malloc(rid_len+1);
+		p.data.message.rid = malloc(rid_len+1);
 		strncpy(p.data.message.rid, (char*)(n->packet+current), rid_len);				// RID
 		p.data.message.rid[rid_len] = '\0';
 		current += rid_len+1;	// slash after rid
 
 		int username_len = 0;
 		while(*((char*)n->packet + current + username_len) != ':') username_len++;
-		p.data.message.username = (char*)malloc(username_len+1);
+		p.data.message.username = malloc(username_len+1);
 		strncpy(p.data.message.username, (char*)(n->packet+current), username_len);		// USERNAME
 		p.data.message.username[username_len] = '\0';
 		current += username_len+1;	// colon after username
 	}
 
 	int text_len = p.len - current + CONSTANT_LEN;
-	p.data.message.text = (char*)malloc(text_len+1);
+	p.data.message.text = malloc(text_len+1);
 	strncpy(p.data.message.text, (char*)(n->packet+current), text_len);					// TEXT
 	p.data.message.text[text_len] = '\0';
 
@@ -172,42 +175,7 @@ int switchtype(so_packet *p)
 }
 //-----------------------------------------------------------------------------
 
-void server_handle_packet(so_network *n)
-{
-	so_packet p = so_unpack(n);
-
-	switch(switchtype(&p))
-	{
-		case ST_INIT:
-			//start_connection(&p);
-			break;
-
-		case ST_MESSAGE:
-			break;
-
-		case ST_DATA:
-			break;
-
-		case ST_ACK:
-			break;
-
-		case ST_RETRY:
-			break;
-
-		case ST_RESET:
-			break;
-
-		case ST_END:
-			break;
-
-		default:
-			ERROR("Received packet of an unknown or unsupported type. Ignoring.");
-			break;
-	}
-}
-//-----------------------------------------------------------------------------
-
-int create_socket(const char *name, const char *port, short if_bind)
+int create_socket(const char *name, const char *port, us_addrinfo **addr, short if_bind)
 /* Create and bind listener socket */
 {
 	us_addrinfo hints, *info;
@@ -251,7 +219,11 @@ int create_socket(const char *name, const char *port, short if_bind)
 		return FAIL;
 	}
 
-	freeaddrinfo(info);
+	if(addr)
+		*addr = p;
+	else
+		freeaddrinfo(info);
+	
 	return sock;
 }
 //-----------------------------------------------------------------------------

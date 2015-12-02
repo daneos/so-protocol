@@ -32,16 +32,14 @@ typedef struct _so_packet {
 	uint32_t seq_num;
 	uint16_t len;
 	so_data data;
-	us_sockaddr_s address;
-	int addr_len;
+	us_addrinfo address;
 } so_packet;
 
 // packet, in a ready to send form
 typedef struct _so_network {
 	void *packet;
 	size_t len;
-	us_sockaddr_s address;
-	int addr_len;
+	us_addrinfo address;
 } so_network;
 
 // // output packet queue
@@ -115,8 +113,7 @@ void so_delete_packet(so_packet *p);
 void so_delete_network(so_network *n);
 void so_debug_print(so_packet *p);
 int switchtype(so_packet *p);
-void server_handle_packet(so_network *n);
-int create_socket(const char *name, const char* port, short if_bind);
+int create_socket(const char *name, const char* port, us_addrinfo **addr, short if_bind);
 //-----------------------------------------------------------------------------
 
 #endif /* __SO_PROTOCOL_H__ */
