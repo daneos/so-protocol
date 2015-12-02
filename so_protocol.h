@@ -44,16 +44,29 @@ typedef struct _so_network {
 // message types
 #define T_INIT			"INI"
 #define T_MESSAGE		"MSG"
+#define T_DATA			"DAT"		// any text data not conforming to MSG specification, added for math server implementation 
 #define T_ACK			"ACK"
 #define T_RETRY			"RET"
 #define T_RESET			"RST"
 #define T_END			"END"
+// message types for switch statement
+#define ST_INIT			0
+#define ST_MESSAGE		1
+#define ST_DATA			2
+#define ST_ACK			3
+#define ST_RETRY		4
+#define ST_RESET		5
+#define ST_END			6
 // type length
 #define T_LEN			3
 // message length
 #define MESSAGE_LEN		500
 // total length of members preceding data
 #define CONSTANT_LEN	(2*sizeof(uint32_t) + sizeof(uint16_t))
+
+// useful macros
+#define IS_TYPE(p,t)	(!strncmp((p)->data.type, t, T_LEN))
+#define SET_TYPE(p,t)	(strncpy((p)->data.type, t, T_LEN))
 //-----------------------------------------------------------------------------
 
 // packet handling functions
@@ -61,6 +74,8 @@ so_network so_pack(so_packet *p);
 so_packet so_unpack(so_network *n);
 void so_delete_packet(so_packet *p);
 void so_delete_network(so_network *n);
+void so_debug_print(so_packet *p);
+int switchtype(so_packet *p);
 //-----------------------------------------------------------------------------
 
 #endif /* __SO_PROTOCOL_H__ */

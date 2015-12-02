@@ -41,7 +41,7 @@ typedef struct sockaddr_in6		us_sockaddr6;
 
 // macros
 #if defined(__GNUC__) && (__STDC_VERSION__ >= 199901L)
-#	define ERROR(msg)		fprintf(stderr, "[%s/%s:%d]: %s\n", __FILE__, __func__, __LINE__, msg)
+#	define ERROR(msg)		fprintf(stderr, "\x1b[1;31m[%s/%s():%d]: %s\x1b[0m\n", __FILE__, __func__, __LINE__, msg)
 #else
 #	define ERROR(msg)		fprintf(stderr, "%s\n", msg)
 #endif

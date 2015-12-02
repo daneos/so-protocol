@@ -14,7 +14,7 @@ so_network so_pack(so_packet *p)
 	so_network n;
 	
 	int message_len, rid_len, username_len, text_len;
-	short is_message = !strncmp(p->data.type, T_MESSAGE, T_LEN);
+	short is_message = IS_TYPE(p, T_MESSAGE);
 	if(is_message)
 	{
 		rid_len = strlen(p->data.message.rid);
@@ -97,7 +97,7 @@ so_packet so_unpack(so_network *n)
 	strncpy(p.data.type, (char*)(n->packet+current), T_LEN);				// TYPE
 	current += T_LEN+1;		// slash after type
 
-	if(!strncmp(p.data.type, T_MESSAGE, T_LEN))
+	if(IS_TYPE(&p, T_MESSAGE))
 	{
 		int rid_len = 0;
 		while(*((char*)n->packet + current + rid_len) != '/') rid_len++;
@@ -126,7 +126,7 @@ so_packet so_unpack(so_network *n)
 void so_delete_packet(so_packet *p)
 /* Free structured packet memory */
 {
-	if(!strncmp(p->data.type, T_MESSAGE, T_LEN))
+	if(IS_TYPE(p, T_MESSAGE))
 	{
 		free(p->data.message.rid);
 		free(p->data.message.username);
@@ -144,5 +144,30 @@ void so_delete_network(so_network *n)
 	free(n->packet);
 	n->packet = NULL;
 	n->len = FAIL;
+}
+//-----------------------------------------------------------------------------
+
+void so_debug_print(so_packet *p)
+/* Print packet contents, useful for debugging */
+{
+	if(IS_TYPE(p, T_MESSAGE))
+		printf("|%X|%X|%d|%s/%s/%s:%s|\n", p->cid, p->seq_num, p->len, p->data.type,
+			p->data.message.rid, p->data.message.username, p->data.message.text);
+	else
+		printf("|%X|%X|%d|%s/%s|\n", p->cid, p->seq_num, p->len, p->data.type, p->data.message.text);
+}
+//-----------------------------------------------------------------------------
+
+int switchtype(so_packet *p)
+/* Convert packet type for switch statement */ 
+{
+	if(IS_TYPE(p, T_INIT))		return ST_INIT;
+	if(IS_TYPE(p, T_MESSAGE))	return ST_MESSAGE;
+	if(IS_TYPE(p, T_DATA))		return ST_DATA;
+	if(IS_TYPE(p, T_ACK))		return ST_ACK;
+	if(IS_TYPE(p, T_RETRY))		return ST_RETRY;
+	if(IS_TYPE(p, T_RESET))		return ST_RESET;
+	if(IS_TYPE(p, T_END))		return ST_END;
+	return FAIL;
 }
 //-----------------------------------------------------------------------------
