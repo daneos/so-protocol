@@ -2,7 +2,7 @@
  * Systemy Operacyjne - Projekt - SO Protocol
  * Various utilities
  * Grzegorz Kowalski, 22i
- * version 1 | 11.2015
+ * version 1 | 12.2015
  */
 
 #if !defined(__UTILS_H__)

@@ -1,3 +1,10 @@
+/*
+ * Systemy Operacyjne - Projekt - SO Protocol
+ * Server code
+ * Grzegorz Kowalski, 22i
+ * version 1 | 12.2015
+ */
+
 #include "utils.h"
 #include "so_protocol.h"
 

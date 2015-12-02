@@ -2,7 +2,7 @@
  * Systemy Operacyjne - Projekt - SO Protocol
  * Protocol specific stuff
  * Grzegorz Kowalski, 22i
- * version 1 | 11.2015
+ * version 1 | 12.2015
  */
 
 #include "so_protocol.h"
