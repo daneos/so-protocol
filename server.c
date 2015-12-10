@@ -68,12 +68,13 @@ int main(int argc, char *argv[])
 	for(;;)
 	{
 		so_network n;
-		if((recvlen = recvfrom(sock, buffer, BUFLEN-1 , 0, (us_sockaddr*)(&n.address.ai_addr), &n.address.ai_addrlen)) == -1)
+		memset(&n, 0, sizeof(n));
+		if((recvlen = recvfrom(sock, buffer, BUFLEN-1 , 0, (us_sockaddr*)(n.address.ai_addr), &n.address.ai_addrlen)) == -1)
 		{
 			STDERROR();
 			continue;
 		}
-		inet_ntop(AF_INET, &(((us_sockaddr4*)&n.address.ai_addr)->sin_addr), ip, INET_ADDRSTRLEN);
+		// inet_ntop(AF_INET, &(((us_sockaddr4*)(n.address.ai_addr))->sin_addr), ip, INET_ADDRSTRLEN);
 		INFO("Got packet of %d bytes from %s.", recvlen, ip);
 		n.packet = malloc(recvlen);
 		memcpy(n.packet, buffer, recvlen);
