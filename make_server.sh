@@ -3,8 +3,6 @@
 # Systemy Operacyjne - Projekt - SO Protocol
 # Server build script
 # Grzegorz Kowalski, 22i
-# version 1 | 12.2015
-
-gcc -std=c99 -ggdb -D_POSIX_SOURCE -c so_protocol.c 
-gcc -std=c99 -ggdb -D_POSIX_SOURCE -c server.c
-gcc -o server so_protocol.o server.o
+# version 2 | 01.2016
+ 
+gcc -o server -std=c99 -ggdb -D_POSIX_SOURCE server.c

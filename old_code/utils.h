@@ -2,7 +2,7 @@
  * Systemy Operacyjne - Projekt - SO Protocol
  * Various utilities
  * Grzegorz Kowalski, 22i
- * version 2 | 01.2016
+ * version 1 | 12.2015
  */
 
 #if !defined(__UTILS_H__)
@@ -17,15 +17,18 @@
 #include <stdint.h>
 #include <time.h>
 
-#include <unistd.h>
-#include <signal.h>
-#include <sys/wait.h>
+#if defined(_WIN32)
+#	include <winsock2.h>
+#	include <ws2tcpip.h>
+#else
+#	include <unistd.h>
  
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <arpa/inet.h>
+#	include <sys/types.h>
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <netdb.h>
+#	include <arpa/inet.h>
+#endif
 //-----------------------------------------------------------------------------
 
 // renaming unix socket structs
@@ -63,12 +66,14 @@ typedef struct sockaddr_in6		us_sockaddr6;
 									printf("\n"); \
 								})
 #endif
-#define STDERROR()				ERROR(strerror(errno))
+#define STDERROR()			ERROR(strerror(errno))
 //-----------------------------------------------------------------------------
 
 // constants
-#define FAIL					-1
-#define BUFLEN					100
+#define FAIL				-1
+// bind or not to bind, that is the question...
+#define NO_BIND				0
+#define	DO_BIND				1
 //-----------------------------------------------------------------------------
 
 #endif /* __UTILS_H__ */
